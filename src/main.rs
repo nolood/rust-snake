@@ -1,24 +1,28 @@
 use macroquad::prelude::*;
 use rand::Rng;
 extern crate rand;
-// use rand::Rng;
 
 const CELL_SIZE: f32 = 20.0;
 const GRID_WIDTH: i32 = 20;
-const GRID_HEIGHT: i32 = 20;
-const MOVE_DELAY: f32 = 0.5;
+const GRID_HEIGHT: i32 = 15;
+const MOVE_DELAY: f32 = 0.2;
+
 #[macroquad::main("Snake")]
 async fn main() {
-    let mut snake = vec![(10.0, 10.0)];
+    let mut snake = vec![(20.0, 20.0)];
 
     let mut last_move_time = get_time();
 
     let mut rng = rand::rng();
 
-    let mut food_x = (rng.random_range(0..GRID_WIDTH) as f32) * CELL_SIZE;
-    let mut food_y = (rng.random_range(0..GRID_HEIGHT) as f32) * CELL_SIZE;
+    let mut food = (20.0, 20.0);
+
+    food.0 = (rng.random_range(10..GRID_WIDTH) * CELL_SIZE as i32) as f32;
+    food.1 = (rng.random_range(10..GRID_HEIGHT) * CELL_SIZE as i32) as f32;
 
     let mut direction = (CELL_SIZE, 0.0);
+
+    println!("{:?}", food);
 
     loop {
         clear_background(BLACK);
@@ -40,16 +44,12 @@ async fn main() {
             let head = snake[0];
             let new_head = (head.0 + direction.0, head.1 + direction.1);
 
-            // Добавляем новый сегмент в начало змейки
             snake.insert(0, new_head);
 
-            // Проверка на столкновение с едой
-            if new_head.0 == food_x && new_head.1 == food_y {
-                // Генерация новой еды
-                food_x = (rng.random_range(0..GRID_WIDTH) as f32) * CELL_SIZE;
-                food_y = (rng.random_range(0..GRID_HEIGHT) as f32) * CELL_SIZE;
+            if new_head.0 == food.0 && new_head.1 == food.1 {
+                food.0 = (rng.random_range(0..GRID_WIDTH) * CELL_SIZE as i32) as f32;
+                food.1 = (rng.random_range(0..GRID_HEIGHT) * CELL_SIZE as i32) as f32;
             } else {
-                // Удаляем последний сегмент змейки, если не съедена еда
                 snake.pop();
             }
 
@@ -60,9 +60,10 @@ async fn main() {
             draw_rectangle(*x, *y, CELL_SIZE, CELL_SIZE, GREEN);
         }
 
-        // Отображаем еду
-        draw_rectangle(food_x, food_y, CELL_SIZE, CELL_SIZE, RED);
+        println!("{:?}", snake);
 
-        next_frame().await
+        draw_rectangle(food.0, food.1, CELL_SIZE, CELL_SIZE, RED);
+
+        next_frame().await;
     }
 }
